@@ -1,21 +1,18 @@
-import { useState } from 'react';
-
+// Main component for the application.
 function App() {
-  const [count, setCount] = useState(0); 
-  // useState is a hook that allows you to add state to a functional component.
-  // It returns an array with two elements: the current state value and a function to update it.
+    // Logs a personalized greeting to the browser console.
+    function greet(name: string) {
+        console.log(`Hello, ${name}!`);
+    }
 
-  function increase() {
-    setCount(count + 1);
-  }
-
-  return (
-    <>
-      <h1>Count: {count}</h1>
-      {/* The button triggers the event handler, calling the increase function when clicked */}
-      <button onClick={increase}>Increase</button>
-    </>
-  );
+    // Render the page heading and greeting button.
+    return (
+        <div>
+            <h1>My React App</h1>
+            {/* Call greet when the user clicks this button. */}
+            <button onClick={() => greet("abhishek")}>Greet</button>
+        </div>
+    );
 }
 
-export default App; // Fixed: Export the function reference, do not call it with ()
+export default App;
