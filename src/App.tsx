@@ -1,11 +1,12 @@
 // Main component for the application.
 function App() {
-  function handlechange() {
-    console.log("clicked");
+  function handlechange(event: React.ChangeEvent<HTMLInputElement>) {
+    console.log(event.target.value);
   }
+
   return (
     <div>
-    <input type ="text" onChange={handlechange} />
+      <input type="text" onChange={handlechange} />
     </div>
   );
 }
