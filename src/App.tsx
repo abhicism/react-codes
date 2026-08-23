@@ -1,14 +1,19 @@
-// Main component for the application.
-function App() {
-  function handlechange(event: React.ChangeEvent<HTMLInputElement>) {
-    console.log(event.target.value);
-  }
+import {useState} from 'react';
 
-  return (
-    <div>
-      <input type="text" onChange={handlechange} />
-    </div>
-  );
+function App() {
+    const [name, setName] = useState('');
+
+    function handlechange(event: React.ChangeEvent<HTMLInputElement>) {
+        setName(event.target.value);
+    }
+    return (
+        <div>
+            <h1>Hello {name}</h1>
+            <input type="text" 
+            placeholder="Enter your name"
+             onChange={handlechange} />
+        </div>
+    );
 }
 
 export default App;
