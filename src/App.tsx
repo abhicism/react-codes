@@ -1,40 +1,32 @@
-// Imports React's useState hook for storing component data.
-import { useState } from "react";
+import React, { useState } from 'react';
 
-// Defines the main application component.
 function App() {
-    // Stores whether the password is visible and provides a function to update it.
-    const [showPassword, setShowPassword] = useState(false);
+  // Define a state variable called isAdmin and a function to update it
+  const [isAdmin, setIsAdmin] = useState(false);
 
-    // Toggles the password visibility between hidden and visible.
-    function togglePassword() {
-        // Updates the visibility state to the opposite of its current value.
-        setShowPassword(!showPassword);
-    }
+  // Toggle function
+  function toggleAdmin() {
+    setIsAdmin(!isAdmin);
+  }
 
-    // Returns the user interface displayed by this component.
-    return (
-        // Wraps all login form elements in one container.
-        <div>
-            {/* Displays the page heading. */}
-            <h1>Login</h1>
+  return (
+    <div>
+      {/* Render a heading that adapts to admin state */}
+      <h1>
+        {isAdmin ? "Welcome Admin Abhishek!" : "Welcome Abhishek!"}
+      </h1>
 
-            {/* Lets the user enter a password. */}
-            <input
-                // Shows plain text when visible; otherwise masks the password.
-                type={showPassword ? "text" : "password"}
-                // Shows helper text before the user types a password.
-                placeholder="Enter password"
-            />
+      {/* Conditionally render a paragraph if isAdmin is true */}
+      {isAdmin && (
+        <p>You have Admin Access</p>
+      )}
 
-            {/* Runs togglePassword when the user clicks this button. */}
-            <button onClick={togglePassword}>
-                {/* Changes the button label based on password visibility. */}
-                {showPassword ? "Hide Password" : "Show Password"}
-            </button>
-        </div>
-    );
+      {/* Render a button that toggles the value of isAdmin when clicked */}
+      <button onClick={toggleAdmin}>
+        {isAdmin ? "Revoke Admin Access" : "Grant Admin Access"}
+      </button>
+    </div>
+  );
 }
 
-// Makes the App component available for use in other files.
 export default App;
