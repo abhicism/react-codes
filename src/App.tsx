@@ -1,27 +1,36 @@
-// Place type definitions outside the component (PascalCase convention)
-type User = {
-    id: number;
-    name: string;
-    age: number;
-};
+//mini project : small product list
 
-function App() {
-    // Defining the array of users inside the component
-    const users: User[] = [
-        { id: 1, name: 'John Doe', age: 30 },
-        { id: 2, name: 'Jane Smith', age: 25 },
-        { id: 3, name: 'Bob Johnson', age: 40 },
+
+
+//declare the product element type
+    type Product = {
+        id : number;
+        name: string;
+        model : string;
+        price: number;
+    };
+
+    function App() {
+    const products: Product[] = [
+        //sample product data with list of array of objects
+        { id: 1, name: "Product 1", model: "Model A", price: 100 },
+        { id: 2, name: "Product 2", model: "Model B", price: 200 },
+        { id: 3, name: "Product 3", model: "Model C", price: 300 },
     ];
 
     return (
         <div>
-            <h1>User List</h1>
-            {users.map((user) => (
-                <div key={user.id}>
-                    <p>Name: {user.name}</p>
-                    <p>Age: {user.age}</p> <br></br>
-                </div>
-            ))}
+            <h1>Product List</h1>
+            <ol>
+                {products.map((product) => (
+                    <div key={product.id}>
+                        <h2>{product.name}</h2>
+                        <p>Model: {product.model}</p>
+                        <p>Price: ${product.price}</p>
+                        <br></br>
+                    </div>
+                ))}
+            </ol>
         </div>
     );
 }
