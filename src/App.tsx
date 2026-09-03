@@ -1,28 +1,31 @@
 import { useState } from "react";
-import "./App.css";
 
 function App() {
-    // create a state variable to store the name
-    const [name, setName] = useState("");
+  // Stores the text currently entered in the name field.
+  const [name, setName] = useState("");
 
-    return (
-        <div>
-            {/* create an input field to get the name */}
-            <input
-                type="text"
-                className="name-input"
-                placeholder="Enter your name"
-                value={name}
-                onChange={(event) => {
-                    // update the state variable when the input field changes
-                    setName(event.target.value);
-                }}
-            />
+  // Prevents the form refresh and greets the user with their entered name.
+  function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    alert(`Hello, ${name}!`);
+  }  
 
-            {/* display the name in a paragraph */}
-            <p>You have enetered the name: {name}</p>
-        </div>
-    );
+  return (
+    <form onSubmit={handleSubmit}>
+      <label>
+        Name:
+        {/* Controlled input: its value always comes from React state. */}
+        <input
+          type="text"
+          value={name}
+          // Update the state whenever the user types in the field.
+          onChange={(event) => setName(event.target.value)}
+        />
+      </label>
+      {/* Submits the form and runs handleSubmit above. */}
+      <button type="submit">Greet</button>
+    </form>
+  );
 }
 
 export default App;
