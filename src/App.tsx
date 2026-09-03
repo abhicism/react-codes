@@ -1,36 +1,67 @@
-//mini project : small product list
+// Define TypeScript type for the props of the ProductCard component
+type ProductProps = {
+    name: string;  // Name of the product
+    price: number; // Price of the product
+};
 
+// Functional component to display individual product details
+function ProductCard({
+    name,
+    price
+}: ProductProps) {  //productProps is type annotation for the props object
+    return (
+        <div>
+            {/* Display the product name inside an h2 tag */}
+            <h2>{name}</h2>
+            {/* Display the product price with the Rupee symbol */}
+            <p>₹{price}</p>
+        </div>
+    );
+}
 
+// Define TypeScript type for the structure of each product item in the array
+type Product = {
+    id: number;    // Unique identifier for the product
+    name: string;  // Name of the product
+    price: number; // Price of the product
+};
 
-//declare the product element type
-    type Product = {
-        id : number;
-        name: string;
-        model : string;
-        price: number;
-    };
-
-    function App() {
+// Main application component
+function App() {
+    // List of product items to display
     const products: Product[] = [
-        //sample product data with list of array of objects
-        { id: 1, name: "Product 1", model: "Model A", price: 100 },
-        { id: 2, name: "Product 2", model: "Model B", price: 200 },
-        { id: 3, name: "Product 3", model: "Model C", price: 300 },
+        {
+            id: 1,
+            name: "Laptop",
+            price: 50000
+        },
+        {
+            id: 2,
+            name: "Phone",
+            price: 25000
+        },
+        {
+            id: 3,
+            name: "Headphones",
+            price: 3000
+        }
     ];
 
     return (
         <div>
-            <h1>Product List</h1>
-            <ol>
-                {products.map((product) => (
-                    <div key={product.id}>
-                        <h2>{product.name}</h2>
-                        <p>Model: {product.model}</p>
-                        <p>Price: ${product.price}</p>
-                        <br></br>
-                    </div>
-                ))}
-            </ol>
+            {/* Page heading */}
+            <h1>Products</h1>
+
+            {/* Map over the products array to dynamically render a ProductCard for each product */}
+            {products.map((product, index) => (
+                <div key={product.id}>
+                    <ProductCard
+                        name={product.name}
+                        price={product.price}
+                    />
+                    {index < products.length - 1 && <hr />}
+                </div>
+            ))}
         </div>
     );
 }
