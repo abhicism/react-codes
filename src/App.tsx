@@ -4,10 +4,15 @@ function App() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     alert(`Hello, ${name}!`);
+  }
+
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
   }
 
   return (
@@ -44,6 +49,14 @@ function App() {
               setPassword(event.target.value)
             }}
           />
+          {showPassword && (
+            <span>
+              {password}
+            </span>
+          )}
+          <button type="button" onClick={togglePasswordVisibility}>
+            {showPassword ? "Hide Password" : "See Password"}
+          </button>
         </label>
         <br />
         <button type="submit">Submit</button>
