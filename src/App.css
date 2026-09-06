@@ -211,3 +211,7 @@
     border-right-color: var(--border);
   }
 }
+.field-label {
+  display: inline-block;
+  margin-right: 8px;
+}

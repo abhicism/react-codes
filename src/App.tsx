@@ -1,89 +1,72 @@
-// Import React's state hook for managing form data.
-import { useState } from "react";
+import { useState, type ChangeEvent } from "react";
 
-// Define the shape of the form values.
-type FormData = {
-    name: string;
+type LoginData = {
     email: string;
     password: string;
 };
 
-// Main component for the registration form.
 function App() {
-    // Store the form values in state.
-    //formdata is the interface that defines the shape of the form values. It has three properties: name, email, and password, all of which are strings. The useState hook is used to create a state variable called formData, which is initialized with an object that has empty strings for each property. The setFormData function is used to update the formData state whenever the user types into an input field.
-    const [formData, setFormData] = useState<FormData>({
-        name: "",
+    const [formData, setFormData] = useState<LoginData>({
         email: "",
         password: ""
     });
 
-    // Update the matching field whenever the user types into an input.
-    function handleChange(
-        event: React.ChangeEvent<HTMLInputElement>
-    ) {
-        const { name, value } = event.target;
+    function handleChange(event: ChangeEvent<HTMLInputElement>) {
+        //  name: fieldName is the name attribute of the input
+        const { name: fieldName, value } = event.target;
 
-        setFormData({
-            ...formData,
-            [name]: value
-        });
+        setFormData((currentFormData) => ({
+            //currentFormData is the previous state of the form data which is being updated with the new value of the input that triggered the change event
+            ...currentFormData,
+            // [fieldName]: value is a computed property name, it will update the field with the name of the input that triggered the change event
+            [fieldName]: value
+        }));
     }
 
-    // Prevent default form submission and log the form data.
-    function handleSubmit(
-        event: React.FormEvent<HTMLFormElement>
-    ) {
+    function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
         event.preventDefault();
 
-        console.log(formData);
+        console.log("Email:", formData.email);
+        console.log("Password:", formData.password);
     }
 
-    // Render the registration form UI.
     return (
         <div>
-            {/* Page heading */}
-            <h1>Registration Form</h1>
+            <h1>Login Form</h1>
 
-            {/* Form container with submit handler */}
             <form onSubmit={handleSubmit}>
+                <div>
+                    <label className="field-label">Email:</label>
+                    <input
+                        type="email"
+                        name="email"
+                        value={formData.email}
+                        onChange={handleChange}
+                        placeholder="Enter your email"
+                    />
+                </div>
 
-                {/* Name input field */}
-                <input
-                    type="text"
-                    name="name"
-                    placeholder="Enter your name"
-                    value={formData.name}
-                    onChange={handleChange}
-                />
+                <br />
 
-                {/* Email input field */}
-                <input
-                    type="email"
-                    name="email"
-                    placeholder="Enter your email"
-                    value={formData.email}
-                    onChange={handleChange}
-                />
+                <div>
+                    <label className="field-label">Password:</label>
+                    <input
+                        type="password"
+                        name="password"
+                        value={formData.password}
+                        onChange={handleChange}
+                        placeholder="Enter your password"
+                    />
+                </div>
 
-                {/* Password input field */}
-                <input
-                    type="password"
-                    name="password"
-                    placeholder="Enter your password"
-                    value={formData.password}
-                    onChange={handleChange}
-                />
+                <br />
 
-                {/* Submit button */}
                 <button type="submit">
-                    Register
+                    Login
                 </button>
-
             </form>
         </div>
     );
 }
 
-// Export the App component for use in the app entry point.
 export default App;
