@@ -1,22 +1,22 @@
-import { useEffect } from "react"; 
-// Importing the useEffect hook from React
+import { useState, useEffect } from "react";
 
 function App() {
 
+    const [count, setCount] = useState(0);
+
     useEffect(() => {
-        // Runs after the component is mounted (first render)
-        console.log("Component loaded");
-        // Logs a message to the console when the component loads
-    });
-    // No dependency array → runs after every render
+        document.title = `Count: ${count}`;
+    }, [count]);
 
     return (
         <div>
-            {/* Displays a heading on the page */}
-            <h1>Hello React</h1>
+            <h1>Count: {count}</h1>
+
+            <button onClick={() => setCount(count + 1)}>
+                +
+            </button>
         </div>
     );
 }
 
-export default App; 
-// Exports the App component so it can be used elsewhere
+export default App;
