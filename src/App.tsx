@@ -1,37 +1,53 @@
-import React, { useEffect, useState } from 'react'
+import { useState, useEffect } from "react";
+
+// Define the structure of a User object
+type User = {
+    id: number;
+    name: string;
+};
 
 function App() {
-  const [formData, setFormData] = useState({ email: '' })
 
-  useEffect(() => {
-    console.log('Email changed:', formData.email)
+    // Create users state
+    // Initially, the users array is empty
+    const [users, setUsers] = useState<User[]>([]);
 
-    return () => {
-      console.log('Cleanup before next run or unmount')
-    }
-  }, [formData.email])
+    // Run this code after the component loads
+    useEffect(() => {
 
-  function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault()
-    console.log('Form submitted with email:', formData.email)
-  }
+        // Create an async function to get users from FastAPI
+        async function getUsers() {
 
-  return (
+            // Send a GET request to the FastAPI endpoint
+            const response = await fetch(
+                "http://localhost:8000/users"
+            );
 
+            // Convert the JSON response into JavaScript data
+            const data = await response.json();
 
-      <form onSubmit={handleSubmit}>
-        <label htmlFor="email">Email</label>
-        <input
-          id="email"
-          type="email"
-          value={formData.email}
-          onChange={(event) =>
-            setFormData({ ...formData, email: event.target.value })
-          }
-        />
-        <button type="submit" style={{ backgroundColor: 'yellow', color: 'black', fontWeight: 'bold' }}>Submit</button>
-      </form>
-  )
+            // Store the API data inside React state
+            setUsers(data);
+        }
+
+        // Call the function to start the API request
+        getUsers();
+
+    }, []);
+
+    return (
+        <div>
+            <h1>Users</h1>
+
+            {/* Loop through users and display each user */}
+            {users.map((user) => (
+                <div key={user.id}>
+                    <h2>{user.name}</h2>
+                    <p>ID: {user.id}</p>
+                </div>
+            ))}
+        </div>
+    );
 }
 
-export default App
+export default App;
