@@ -1,25 +1,42 @@
-import React, { useState } from "react";
+import { useState, useEffect } from "react";
 
 function App() {
-  const [isChecked, setIsChecked] = useState(false);
 
-  const handleChange = (event) => {
-    setIsChecked(event.target.checked);
-  };
+    const [seconds, setSeconds] = useState(10);
 
-  return (
-    <div>
-      <label>
-        <input 
-          type="checkbox" 
-          checked={isChecked} 
-          onChange={handleChange} 
-        />
-        Accept Terms & Conditions
-      </label>
-      <p>{isChecked ? "✅ Checked" : "❌ Not Checked"}</p>
-    </div>
-  );
+    useEffect(() => {
+
+        const timer = setInterval(() => {
+
+            setSeconds((currentSeconds) => {
+
+                if (currentSeconds <= 0) {
+                    clearInterval(timer);
+                    return 0;
+                }
+
+                return currentSeconds - 1;
+            });
+
+        }, 1000);
+
+        return () => {
+            clearInterval(timer);
+        };
+
+    }, []);
+
+    return (
+        <div>
+            <h1>Countdown Timer</h1>
+
+            <h2>{seconds}</h2>
+
+            {seconds === 0 && (
+                <p>Time's up!</p>
+            )}
+        </div>
+    );
 }
 
 export default App;
