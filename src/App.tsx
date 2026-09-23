@@ -1,26 +1,52 @@
-import {useRef} from 'react';
+import { useRef, useState } from "react";
 
-// App is the main component of our application
 function App() {
-  // We are using the useRef hook to create a reference to our input element
-  const inputRef = useRef<HTMLInputElement>(null);
+  // Initialize state and timer reference
+  const [seconds, setSeconds] = useState(0);
+  const timerRef = useRef<number | null>(null);
 
-  //focus the input field when the button is clicked
-  function handleFocus() {
-    inputRef.current?.focus();
+  // Function to start the timer
+  function handleStart() {
+    // If the timer is already running, return early
+    if (timerRef.current !== null) {
+      return;
+    }
+    // Start the timer by setting an interval that updates the state every second
+    timerRef.current = window.setInterval(() => {
+      setSeconds((currentSeconds) => {
+        return currentSeconds + 1;
+      });
+    }, 1000);
   }
 
+  // Function to stop the timer
+  function handleStop() {
+    // If the timer is not running, return early
+    if (timerRef.current !== null) {
+      // Clear the interval and set the timer reference to null
+      clearInterval(timerRef.current);
+      timerRef.current = null;
+    }
+  }
+
+  // Function to reset the timer
+  function handleReset() {
+    // Stop the timer
+    handleStop();
+    // Reset the state to 0
+    setSeconds(0);
+  }
+
+  // Render the stopwatch component
   return (
     <div>
-      {/* This is our input field */}
-      <input ref={inputRef} 
-       type='text'
-        placeholder='enter your name'
-        />
-      {/* This is our button that will trigger the focus on the input field when clicked */}
-      <button 
-        onClick={handleFocus}>Focus Input</button>
+      <h1>Stopwatch</h1>
+      <h2>{seconds}</h2>
+      <button onClick={handleStart}>Start</button>
+      <button onClick={handleStop}>Stop</button>
+      <button onClick={handleReset}>Reset</button>
     </div>
   );
 }
+
 export default App;
