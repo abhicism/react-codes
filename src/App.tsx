@@ -1,27 +1,19 @@
-import { useRef } from "react";
+import { useMemo, useState } from "react";
 
 function App() {
-  const bottomRef = useRef<HTMLDivElement>(null);
+    const [number, setNumber] = useState(10);
 
-  function scrollToBottom() {
-    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-  }
+    const doubledNumber = useMemo(() => {
+        console.log("Calculating doubled number...");
+        return number * 2;
+    }, [number]);
 
-  return (
-    <div>
-      <button onClick={scrollToBottom}>Scroll to Bottom</button>
-
-      <div style={{ height: "1500px" }}>
-        <p>Lots of content...</p>
-        <p>Lots of content...</p>
-        <p>Lots of content...</p>
-        <p>Lots of content...</p>
-        <p>Lots of content...</p>
-      </div>
-
-      <div ref={bottomRef}>Bottom of the page</div>
-    </div>
-  );
+    return (
+        <div>
+            <h1>Doubled Number: {doubledNumber}</h1>
+            <button onClick={() => setNumber(number + 1)}>Increment</button>
+        </div>  
+    ) 
 }
 
 export default App;
