@@ -1,51 +1,139 @@
-// useReducer is an alternative to useState for managing complex state logic.
-// It works like: you "dispatch" an action, and a "reducer" function decides
-// how the state should change based on that action.
-import { useReducer } from 'react';
+import { useReducer } from "react";
 
-// The reducer function takes two arguments:
-// - state: the current value of our state (a number)
-// - action: an object describing what happened (e.g. { type: 'increment' })
-// It returns the NEW state based on the action type.
-function reducer(state: number, action: { type: string }) {
+// Product type
+type Product = {
+    id: number;
+    name: string;
+};
 
-    // If the action type is 'increment', increase the count by 1
-    if (action.type === 'increment') {
-        return state + 1;
+// Define all possible actions
+type Action =
+    // Action for adding a product
+    | { type: "addToCart"; product: Product }
+
+    // Action for removing a product
+    | { type: "removeFromCart"; id: number }
+
+    // Action for clearing the entire cart
+    | { type: "clearCart" };
+
+
+// Reducer function
+// It receives the current state and the action
+function reducer(
+    state: Product[],   // Current cart
+    action: Action      // Instruction from dispatch()
+): Product[] {
+
+    // Check if the action is "addToCart"
+    if (action.type === "addToCart") {
+
+        // Add the new product to the existing cart
+        // ...state keeps all existing products
+        return [...state, action.product];
     }
 
-    // If the action type is 'decrement', decrease the count by 1
-    if (action.type === 'decrement') {
-        return state - 1;
+
+    // Check if the action is "removeFromCart"
+    if (action.type === "removeFromCart") {
+
+        // Keep every product except the one whose id matches
+        return state.filter(
+            product => product.id !== action.id
+        );
     }
 
-    // If the action type is unknown, return the current state unchanged
+
+    // Check if the action is "clearCart"
+    if (action.type === "clearCart") {
+
+        // Return an empty array
+        // This means the cart is now empty
+        return [];
+    }
+
+
+    // If no action matches, return the existing state
     return state;
 }
 
-// App is the main component that gets rendered on the screen
+
 function App() {
 
-    // useReducer returns an array with two things:
-    // - count: the current state value (starts at 0, the initial value)
-    // - dispatch: a function we call to send actions to the reducer
-    const [count, dispatch] = useReducer(reducer, 0);
+    // useReducer returns:
+    // cart    → current state
+    // dispatch → function used to send an action
+    const [cart, dispatch] = useReducer(
+        reducer,    // Reducer function
+        []          // Initial cart state
+    );
 
-    // This is the JSX that gets displayed on the screen
+
+    // Example product
+    const product = {
+        id: 1,
+        name: "Laptop"
+    };
+
+
     return (
         <div>
 
-            {/* Display the current count value */}
-            <p>Count: {count}</p>
+            <h1>Shopping Cart</h1>
 
-            {/* Increment button — when clicked, dispatches an 'increment' action */}
-            <button onClick={() => dispatch({ type: 'increment' })}>Increment</button>
 
-            {/* Decrement button — when clicked, dispatches a 'decrement' action */}
-            <button onClick={() => dispatch({ type: 'decrement' })}>Decrement</button>
+            {/* Add product to cart */}
+            <button
+                onClick={() =>
+                    dispatch({
+                        // Tell reducer what happened
+                        type: "addToCart",
+
+                        // Send the product that should be added
+                        product: product
+                    })
+                }
+            >
+                Add Laptop
+            </button>
+
+
+            {/* Remove product from cart */}
+            <button
+                onClick={() =>
+                    dispatch({
+                        // Tell reducer to remove a product
+                        type: "removeFromCart",
+
+                        // Tell reducer which product to remove
+                        id: 1
+                    })
+                }
+            >
+                Remove Laptop
+            </button>
+
+
+            {/* Clear the entire cart */}
+            <button
+                onClick={() =>
+                    dispatch({
+                        // Tell reducer to empty the cart
+                        type: "clearCart"
+                    })
+                }
+            >
+                Clear Cart
+            </button>
+
+
+            {/* Display number of products in the cart */}
+            <h2>
+                Cart Items: {cart.length}
+            </h2>
+
         </div>
     );
 }
 
-// Export App so it can be imported and used in other files (like main.tsx)
-export default App
+export default App;
