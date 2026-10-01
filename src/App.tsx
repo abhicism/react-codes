@@ -1,79 +1,126 @@
 import { useReducer } from "react";
 
-// Product type
+// Product stored in the cart
 type Product = {
     id: number;
     name: string;
+    quantity: number;
 };
 
-// Define all possible actions
+
+// All possible actions
 type Action =
-    // Action for adding a product
-    | { type: "addToCart"; product: Product }
+    // Add one laptop
+    | {
+        type: "addToCart";
+        product: Product;
+    }
 
-    // Action for removing a product
-    | { type: "removeFromCart"; id: number }
+    // Remove one laptop
+    | {
+        type: "removeFromCart";
+        id: number;
+    }
 
-    // Action for clearing the entire cart
-    | { type: "clearCart" };
+    // Remove everything
+    | {
+        type: "clearCart";
+    };
 
 
-// Reducer function
-// It receives the current state and the action
+// Reducer
 function reducer(
-    state: Product[],   // Current cart
-    action: Action      // Instruction from dispatch()
+    state: Product[],
+    action: Action
 ): Product[] {
 
-    // Check if the action is "addToCart"
+    // =========================
+    // ADD TO CART
+    // =========================
+
     if (action.type === "addToCart") {
 
-        // Add the new product to the existing cart
-        // ...state keeps all existing products
-        return [...state, action.product];
+        // Check if the product already exists
+        const existingProduct = state.find(
+            product => product.id === action.product.id
+        );
+
+        // If product already exists
+        if (existingProduct) {
+
+            // Increase its quantity by 1
+            return state.map(product =>
+                product.id === action.product.id
+                    ? {
+                        ...product,
+                        quantity: product.quantity + 1
+                    }
+                    : product
+            );
+        }
+
+        // Product does not exist yet
+        // Add it with quantity = 1
+        return [
+            ...state,
+            {
+                ...action.product,
+                quantity: 1
+            }
+        ];
     }
 
 
-    // Check if the action is "removeFromCart"
+    // =========================
+    // REMOVE FROM CART
+    // =========================
+
     if (action.type === "removeFromCart") {
 
-        // Keep every product except the one whose id matches
-        return state.filter(
-            product => product.id !== action.id
-        );
+        return state
+            .map(product =>
+                product.id === action.id
+
+                    // Decrease quantity by 1
+                    ? {
+                        ...product,
+                        quantity: product.quantity - 1
+                    }
+
+                    // Keep other products unchanged
+                    : product
+            )
+
+            // Remove the product completely
+            // if quantity becomes 0
+            .filter(product => product.quantity > 0);
     }
 
 
-    // Check if the action is "clearCart"
+    // =========================
+    // CLEAR CART
+    // =========================
+
     if (action.type === "clearCart") {
 
-        // Return an empty array
-        // This means the cart is now empty
+        // Empty the entire cart
         return [];
     }
 
 
-    // If no action matches, return the existing state
+    // Return current state
     return state;
 }
 
 
 function App() {
 
-    // useReducer returns:
-    // cart    → current state
-    // dispatch → function used to send an action
+    // cart = current cart state
+    // dispatch = sends an action to reducer
     const [cart, dispatch] = useReducer(
-        reducer,    // Reducer function
-        []          // Initial cart state
+        reducer,
+        []
     );
-
-
-    // Example product
-    const product = {
-        id: 1,
-        name: "Laptop"
-    };
 
 
     return (
@@ -82,15 +129,20 @@ function App() {
             <h1>Shopping Cart</h1>
 
 
-            {/* Add product to cart */}
+            {/* =========================
+                ADD LAPTOP
+            ========================= */}
+
             <button
                 onClick={() =>
                     dispatch({
-                        // Tell reducer what happened
                         type: "addToCart",
 
-                        // Send the product that should be added
-                        product: product
+                        product: {
+                            id: 1,
+                            name: "Laptop",
+                            quantity: 1
+                        }
                     })
                 }
             >
@@ -98,14 +150,14 @@ function App() {
             </button>
 
 
-            {/* Remove product from cart */}
+            {/* =========================
+                REMOVE LAPTOP
+            ========================= */}
+
             <button
                 onClick={() =>
                     dispatch({
-                        // Tell reducer to remove a product
                         type: "removeFromCart",
-
-                        // Tell reducer which product to remove
                         id: 1
                     })
                 }
@@ -114,23 +166,38 @@ function App() {
             </button>
 
 
-            {/* Clear the entire cart */}
+            {/* =========================
+                DISPLAY CART
+            ========================= */}
+
+            {cart.map(product => (
+                <div key={product.id}>
+
+                    <h2>
+                        {product.name}
+                    </h2>
+
+                    <p>
+                        Quantity: {product.quantity}
+                    </p>
+
+                </div>
+            ))}
+
+
+            {/* =========================
+                CLEAR CART
+            ========================= */}
+
             <button
                 onClick={() =>
                     dispatch({
-                        // Tell reducer to empty the cart
                         type: "clearCart"
                     })
                 }
             >
                 Clear Cart
             </button>
-
-
-            {/* Display number of products in the cart */}
-            <h2>
-                Cart Items: {cart.length}
-            </h2>
 
         </div>
     );
