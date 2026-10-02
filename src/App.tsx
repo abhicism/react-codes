@@ -1,74 +1,256 @@
-// Import the React APIs used to create, read, and update the theme context.
-import { createContext, useContext, useState } from "react";
+import {
+    createContext,
+    useContext,
+    useReducer
+} from "react";
 
-// Describe the theme value and its state updater so context consumers are type-safe.
-type ThemeContextType = {
-    theme: string;
-    setTheme: React.Dispatch<React.SetStateAction<string>>;
+
+// ======================================================
+// 1. Product Type
+// ======================================================
+
+type Product = {
+    id: number;
+    name: string;
+    price: number;
 };
 
-// Create the context; null indicates that no provider has supplied a value yet.
-const ThemeContext = createContext<ThemeContextType | null>(null);
+
+// ======================================================
+// 2. Action Type
+// ======================================================
+
+type Action =
+    | {
+          type: "addToCart";
+          product: Product;
+      }
+    | {
+          type: "removeFromCart";
+          id: number;
+      };
 
 
-// Display the current theme and provide a control for changing it.
-function Profile() {
-    // Read the nearest ThemeContext provider's value.
-    const context = useContext(ThemeContext);
+// ======================================================
+// 3. Cart Context Type
+// ======================================================
 
-    // Show a fallback if Profile is rendered outside the provider.
-    if (!context) {
-        return <p>ThemeContext is not available</p>;
+type CartContextType = {
+    cart: Product[];
+    dispatch: React.Dispatch<Action>;
+};
+
+
+// ======================================================
+// 4. Create Cart Context
+// ======================================================
+
+const CartContext = createContext<CartContextType | null>(null);
+
+
+// ======================================================
+// 5. Reducer
+// ======================================================
+
+function cartReducer(
+    state: Product[],
+    action: Action
+) {
+
+    // Add product to cart
+    if (action.type === "addToCart") {
+
+        return [
+            ...state,
+            action.product
+        ];
     }
 
-    // Extract the current theme and the function that updates it.
-    const { theme, setTheme } = context;
+
+    // Remove product from cart
+    if (action.type === "removeFromCart") {
+
+        return state.filter(
+            product => product.id !== action.id
+        );
+    }
+
+
+    return state;
+}
+
+
+// ======================================================
+// 6. CartProvider
+// ======================================================
+
+function CartProvider({
+    children
+}: {
+    children: React.ReactNode;
+}) {
+
+    const [cart, dispatch] = useReducer(
+        cartReducer,
+        []
+    );
+
 
     return (
-        // Apply colors based on the selected theme.
-        <div
-            style={{
-                padding: "30px",
-                backgroundColor: theme === "light" ? "white" : "black",
-                color: theme === "light" ? "black" : "white"
+        <CartContext.Provider
+            value={{
+                cart,
+                dispatch
             }}
         >
-            <h1>Profile</h1>
+            {children}
+        </CartContext.Provider>
+    );
+}
 
-            {/* Show the current theme value. */}
-            <p>Current Theme: {theme}</p>
 
-            {/* Toggle between the light and dark themes when clicked. */}
-            <button
-                onClick={() =>
-                    setTheme(theme === "light" ? "dark" : "light")
-                }
-            >
-                Change Theme
-            </button>
+// ======================================================
+// 7. ProductList Component
+// ======================================================
+
+function ProductList() {
+
+    const context = useContext(CartContext);
+
+    if (!context) {
+        return <p>CartContext is not available</p>;
+    }
+
+    const { dispatch } = context;
+
+
+    const products: Product[] = [
+        {
+            id: 1,
+            name: "Laptop",
+            price: 50000
+        },
+        {
+            id: 2,
+            name: "Mouse",
+            price: 1000
+        },
+        {
+            id: 3,
+            name: "Keyboard",
+            price: 2000
+        }
+    ];
+
+
+    return (
+        <div>
+
+            <h2>Products</h2>
+
+            {products.map(product => (
+
+                <div key={product.id}>
+
+                    <span>
+                        {product.name} - ₹{product.price}
+                    </span>
+
+                    <button
+                        onClick={() =>
+                            dispatch({
+                                type: "addToCart",
+                                product
+                            })
+                        }
+                    >
+                        Add to Cart
+                    </button>
+
+                </div>
+
+            ))}
+
         </div>
     );
 }
 
 
-// Own the theme state and make it available to Profile through context.
-function App() {
-    // Start the app in light mode.
-    const [theme, setTheme] = useState("light");
+// ======================================================
+// 8. Cart Component
+// ======================================================
+
+function Cart() {
+
+    const context = useContext(CartContext);
+
+    if (!context) {
+        return <p>CartContext is not available</p>;
+    }
+
+    const { cart, dispatch } = context;
+
 
     return (
-        // Provide both the current theme and its updater to descendants.
-        <ThemeContext.Provider
-            value={{
-                theme,
-                setTheme
-            }}
-        >
-            <Profile />
-        </ThemeContext.Provider>
+        <div>
+
+            <h2>Cart</h2>
+
+            {cart.length === 0 && (
+                <p>Your cart is empty</p>
+            )}
+
+
+            {cart.map(product => (
+
+                <div key={product.id}>
+
+                    <span>
+                        {product.name} - ₹{product.price}
+                    </span>
+
+                    <button
+                        onClick={() =>
+                            dispatch({
+                                type: "removeFromCart",
+                                id: product.id
+                            })
+                        }
+                    >
+                        Remove
+                    </button>
+
+                </div>
+
+            ))}
+
+        </div>
     );
 }
 
 
-// Export App so it can be rendered by the application entry point.
+// ======================================================
+// 9. App Component
+// ======================================================
+
+function App() {
+
+    return (
+
+        <CartProvider>
+
+            <h1>Shopping Cart</h1>
+
+            <ProductList />
+
+            <hr />
+
+            <Cart />
+
+        </CartProvider>
+
+    );
+}
+
+
 export default App;
