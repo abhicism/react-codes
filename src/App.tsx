@@ -1,206 +1,74 @@
-import { useReducer } from "react";
+// Import the React APIs used to create, read, and update the theme context.
+import { createContext, useContext, useState } from "react";
 
-// Product stored in the cart
-type Product = {
-    id: number;
-    name: string;
-    quantity: number;
+// Describe the theme value and its state updater so context consumers are type-safe.
+type ThemeContextType = {
+    theme: string;
+    setTheme: React.Dispatch<React.SetStateAction<string>>;
 };
 
+// Create the context; null indicates that no provider has supplied a value yet.
+const ThemeContext = createContext<ThemeContextType | null>(null);
 
-// All possible actions
-type Action =
-    // Add one laptop
-    | {
-        type: "addToCart";
-        product: Product;
+
+// Display the current theme and provide a control for changing it.
+function Profile() {
+    // Read the nearest ThemeContext provider's value.
+    const context = useContext(ThemeContext);
+
+    // Show a fallback if Profile is rendered outside the provider.
+    if (!context) {
+        return <p>ThemeContext is not available</p>;
     }
 
-    // Remove one laptop
-    | {
-        type: "removeFromCart";
-        id: number;
-    }
-
-    // Remove everything
-    | {
-        type: "clearCart";
-    };
-
-
-// Reducer
-function reducer(
-    state: Product[],
-    action: Action
-): Product[] {
-
-    // =========================
-    // ADD TO CART
-    // =========================
-
-    if (action.type === "addToCart") {
-
-        // Check if the product already exists
-        const existingProduct = state.find(
-            product => product.id === action.product.id
-        );
-
-        // If product already exists
-        if (existingProduct) {
-
-            // Increase its quantity by 1
-            return state.map(product =>
-                product.id === action.product.id
-                    ? {
-                        ...product,
-                        quantity: product.quantity + 1
-                    }
-                    : product
-            );
-        }
-
-        // Product does not exist yet
-        // Add it with quantity = 1
-        return [
-            ...state,
-            {
-                ...action.product,
-                quantity: 1
-            }
-        ];
-    }
-
-
-    // =========================
-    // REMOVE FROM CART
-    // =========================
-
-    if (action.type === "removeFromCart") {
-
-        return state
-            .map(product =>
-                product.id === action.id
-
-                    // Decrease quantity by 1
-                    ? {
-                        ...product,
-                        quantity: product.quantity - 1
-                    }
-
-                    // Keep other products unchanged
-                    : product
-            )
-
-            // Remove the product completely
-            // if quantity becomes 0
-            .filter(product => product.quantity > 0);
-    }
-
-
-    // =========================
-    // CLEAR CART
-    // =========================
-
-    if (action.type === "clearCart") {
-
-        // Empty the entire cart
-        return [];
-    }
-
-
-    // Return current state
-    return state;
-}
-
-
-function App() {
-
-    // cart = current cart state
-    // dispatch = sends an action to reducer
-    const [cart, dispatch] = useReducer(
-        reducer,
-        []
-    );
-
+    // Extract the current theme and the function that updates it.
+    const { theme, setTheme } = context;
 
     return (
-        <div>
+        // Apply colors based on the selected theme.
+        <div
+            style={{
+                padding: "30px",
+                backgroundColor: theme === "light" ? "white" : "black",
+                color: theme === "light" ? "black" : "white"
+            }}
+        >
+            <h1>Profile</h1>
 
-            <h1>Shopping Cart</h1>
+            {/* Show the current theme value. */}
+            <p>Current Theme: {theme}</p>
 
-
-            {/* =========================
-                ADD LAPTOP
-            ========================= */}
-
+            {/* Toggle between the light and dark themes when clicked. */}
             <button
                 onClick={() =>
-                    dispatch({
-                        type: "addToCart",
-
-                        product: {
-                            id: 1,
-                            name: "Laptop",
-                            quantity: 1
-                        }
-                    })
+                    setTheme(theme === "light" ? "dark" : "light")
                 }
             >
-                Add Laptop
+                Change Theme
             </button>
-
-
-            {/* =========================
-                REMOVE LAPTOP
-            ========================= */}
-
-            <button
-                onClick={() =>
-                    dispatch({
-                        type: "removeFromCart",
-                        id: 1
-                    })
-                }
-            >
-                Remove Laptop
-            </button>
-
-
-            {/* =========================
-                DISPLAY CART
-            ========================= */}
-
-            {cart.map(product => (
-                <div key={product.id}>
-
-                    <h2>
-                        {product.name}
-                    </h2>
-
-                    <p>
-                        Quantity: {product.quantity}
-                    </p>
-
-                </div>
-            ))}
-
-
-            {/* =========================
-                CLEAR CART
-            ========================= */}
-
-            <button
-                onClick={() =>
-                    dispatch({
-                        type: "clearCart"
-                    })
-                }
-            >
-                Clear Cart
-            </button>
-
         </div>
     );
 }
 
+
+// Own the theme state and make it available to Profile through context.
+function App() {
+    // Start the app in light mode.
+    const [theme, setTheme] = useState("light");
+
+    return (
+        // Provide both the current theme and its updater to descendants.
+        <ThemeContext.Provider
+            value={{
+                theme,
+                setTheme
+            }}
+        >
+            <Profile />
+        </ThemeContext.Provider>
+    );
+}
+
+
+// Export App so it can be rendered by the application entry point.
 export default App;
