@@ -1,256 +1,112 @@
 import {
-    createContext,
-    useContext,
-    useReducer
+    useEffect,   // Used to run the API call when the component loads
+    useState     // Used to store users, loading status, and error
 } from "react";
 
 
-// ======================================================
-// 1. Product Type
-// ======================================================
-
-type Product = {
-    id: number;
-    name: string;
-    price: number;
+// Define the structure of a User object
+type User = {
+    id: number;      // User ID must be a number
+    name: string;    // User name must be a string
 };
 
 
-// ======================================================
-// 2. Action Type
-// ======================================================
+// Create a custom Hook called useUsers
+function useUsers() {
 
-type Action =
-    | {
-          type: "addToCart";
-          product: Product;
-      }
-    | {
-          type: "removeFromCart";
-          id: number;
-      };
+    // Store the list of users
+    // Initially, the users array is empty
+    const [users, setUsers] =
+        useState<User[]>([]);
 
 
-// ======================================================
-// 3. Cart Context Type
-// ======================================================
-
-type CartContextType = {
-    cart: Product[];
-    dispatch: React.Dispatch<Action>;
-};
+    // Store whether the API request is still running
+    // Initially true because the request has not finished yet
+    const [loading, setLoading] =
+        useState(true);
 
 
-// ======================================================
-// 4. Create Cart Context
-// ======================================================
-
-const CartContext = createContext<CartContextType | null>(null);
-
-
-// ======================================================
-// 5. Reducer
-// ======================================================
-
-function cartReducer(
-    state: Product[],
-    action: Action
-) {
-
-    // Add product to cart
-    if (action.type === "addToCart") {
-
-        return [
-            ...state,
-            action.product
-        ];
-    }
+    // Store an error message if the API request fails
+    // Initially there is no error
+    const [error, setError] =
+        useState("");
 
 
-    // Remove product from cart
-    if (action.type === "removeFromCart") {
+    // useEffect runs when the component using this Hook loads
+    useEffect(() => {
 
-        return state.filter(
-            product => product.id !== action.id
-        );
-    }
+        // Create an async function for making the API request
+        async function getUsers() {
 
+            try {
 
-    return state;
-}
-
-
-// ======================================================
-// 6. CartProvider
-// ======================================================
-
-function CartProvider({
-    children
-}: {
-    children: React.ReactNode;
-}) {
-
-    const [cart, dispatch] = useReducer(
-        cartReducer,
-        []
-    );
+                // Send a GET request to the backend API
+                const response = await fetch(
+                    "http://localhost:8000/users"
+                );
 
 
-    return (
-        <CartContext.Provider
-            value={{
-                cart,
-                dispatch
-            }}
-        >
-            {children}
-        </CartContext.Provider>
-    );
-}
+                // Check whether the HTTP request was successful
+                // response.ok is true for successful responses
+                if (!response.ok) {
+
+                    // If the request failed, create an error
+                    throw new Error(
+                        "Failed to fetch users"
+                    );
+                }
 
 
-// ======================================================
-// 7. ProductList Component
-// ======================================================
-
-function ProductList() {
-
-    const context = useContext(CartContext);
-
-    if (!context) {
-        return <p>CartContext is not available</p>;
-    }
-
-    const { dispatch } = context;
+                // Convert the API response from JSON
+                // into JavaScript data
+                const data =
+                    await response.json();
 
 
-    const products: Product[] = [
-        {
-            id: 1,
-            name: "Laptop",
-            price: 50000
-        },
-        {
-            id: 2,
-            name: "Mouse",
-            price: 1000
-        },
-        {
-            id: 3,
-            name: "Keyboard",
-            price: 2000
+                // Store the received users in React state
+                setUsers(data);
+
+
+            } catch (error) {
+
+                // If something goes wrong,
+                // store an error message in the error state
+                setError(
+                    "Failed to fetch users"
+                );
+
+
+            } finally {
+
+                // This runs whether the request succeeds or fails
+                // The API request is now finished
+                setLoading(false);
+
+            }
         }
-    ];
 
 
-    return (
-        <div>
+        // Call the async function
+        // This starts the API request
+        getUsers();
 
-            <h2>Products</h2>
 
-            {products.map(product => (
+    // Empty dependency array means this effect
+    // runs only when the component initially loads
+    }, []);
 
-                <div key={product.id}>
 
-                    <span>
-                        {product.name} - ₹{product.price}
-                    </span>
+    // Return the data and states from the custom Hook
+    // Components can use these values
+    return {
 
-                    <button
-                        onClick={() =>
-                            dispatch({
-                                type: "addToCart",
-                                product
-                            })
-                        }
-                    >
-                        Add to Cart
-                    </button>
+        // The users received from the API
+        users,
 
-                </div>
+        // Whether the API request is still loading
+        loading,
 
-            ))}
-
-        </div>
-    );
+        // Error message if the request failed
+        error
+    };
 }
-
-
-// ======================================================
-// 8. Cart Component
-// ======================================================
-
-function Cart() {
-
-    const context = useContext(CartContext);
-
-    if (!context) {
-        return <p>CartContext is not available</p>;
-    }
-
-    const { cart, dispatch } = context;
-
-
-    return (
-        <div>
-
-            <h2>Cart</h2>
-
-            {cart.length === 0 && (
-                <p>Your cart is empty</p>
-            )}
-
-
-            {cart.map(product => (
-
-                <div key={product.id}>
-
-                    <span>
-                        {product.name} - ₹{product.price}
-                    </span>
-
-                    <button
-                        onClick={() =>
-                            dispatch({
-                                type: "removeFromCart",
-                                id: product.id
-                            })
-                        }
-                    >
-                        Remove
-                    </button>
-
-                </div>
-
-            ))}
-
-        </div>
-    );
-}
-
-
-// ======================================================
-// 9. App Component
-// ======================================================
-
-function App() {
-
-    return (
-
-        <CartProvider>
-
-            <h1>Shopping Cart</h1>
-
-            <ProductList />
-
-            <hr />
-
-            <Cart />
-
-        </CartProvider>
-
-    );
-}
-
-
-export default App;
