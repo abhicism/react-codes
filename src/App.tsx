@@ -1,112 +1,56 @@
+// Import tools needed for routing and navigation
 import {
-    useEffect,   // Used to run the API call when the component loads
-    useState     // Used to store users, loading status, and error
-} from "react";
+    BrowserRouter, // Enables routing in the browser
+    Routes,        // Holds all route definitions
+    Route,         // Connects a URL path to a component
+    Link           // Navigates between pages without reloading
+} from "react-router";
 
 
-// Define the structure of a User object
-type User = {
-    id: number;      // User ID must be a number
-    name: string;    // User name must be a string
-};
+// Import page components
+import Home from "./pages/Home";
+import About from "./pages/About";
+import Products from "./pages/Products";
 
+function App() {
+    return (
 
-// Create a custom Hook called useUsers
-function useUsers() {
+        // Wrap the application to enable routing
+        <BrowserRouter>
 
-    // Store the list of users
-    // Initially, the users array is empty
-    const [users, setUsers] =
-        useState<User[]>([]);
+            {/* Navigation links displayed on the page */}
+            <nav>
+                <Link to="/">Home</Link>{" | "}
+                <Link to="/about">About</Link>{" | "}
+                <Link to="/products">Products</Link>
+            </nav>
 
+            {/* React Router displays the component
+                matching the current URL */}
+            <Routes>
 
-    // Store whether the API request is still running
-    // Initially true because the request has not finished yet
-    const [loading, setLoading] =
-        useState(true);
+                {/* Show Home when the URL is "/" */}
+                <Route
+                    path="/"
+                    element={<Home />}
+                />
 
+                {/* Show About when the URL is "/about" */}
+                <Route
+                    path="/about"
+                    element={<About />}
+                />
 
-    // Store an error message if the API request fails
-    // Initially there is no error
-    const [error, setError] =
-        useState("");
+                {/* Show Products when the URL is "/products" */}
+                <Route
+                    path="/products"
+                    element={<Products />}
+                />
 
+            </Routes>
 
-    // useEffect runs when the component using this Hook loads
-    useEffect(() => {
-
-        // Create an async function for making the API request
-        async function getUsers() {
-
-            try {
-
-                // Send a GET request to the backend API
-                const response = await fetch(
-                    "http://localhost:8000/users"
-                );
-
-
-                // Check whether the HTTP request was successful
-                // response.ok is true for successful responses
-                if (!response.ok) {
-
-                    // If the request failed, create an error
-                    throw new Error(
-                        "Failed to fetch users"
-                    );
-                }
-
-
-                // Convert the API response from JSON
-                // into JavaScript data
-                const data =
-                    await response.json();
-
-
-                // Store the received users in React state
-                setUsers(data);
-
-
-            } catch (error) {
-
-                // If something goes wrong,
-                // store an error message in the error state
-                setError(
-                    "Failed to fetch users"
-                );
-
-
-            } finally {
-
-                // This runs whether the request succeeds or fails
-                // The API request is now finished
-                setLoading(false);
-
-            }
-        }
-
-
-        // Call the async function
-        // This starts the API request
-        getUsers();
-
-
-    // Empty dependency array means this effect
-    // runs only when the component initially loads
-    }, []);
-
-
-    // Return the data and states from the custom Hook
-    // Components can use these values
-    return {
-
-        // The users received from the API
-        users,
-
-        // Whether the API request is still loading
-        loading,
-
-        // Error message if the request failed
-        error
-    };
+        </BrowserRouter>
+    );
 }
+
+export default App;
